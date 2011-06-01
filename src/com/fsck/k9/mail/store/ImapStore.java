@@ -775,7 +775,7 @@ public class ImapStore extends Store {
         public boolean create(FolderType type) throws MessagingException {
             return create(type, null);
         }
-        
+
         public boolean create(FolderType type, String folderName) throws MessagingException {
             /*
              * This method needs to operate in the unselected mode as well as the selected mode
@@ -791,14 +791,14 @@ public class ImapStore extends Store {
                 }
             }
             try {
-                if(folderName != null) {
+                if (folderName != null) {
                     connection.executeSimpleCommand(String.format("CREATE %s",
-                            encodeString(encodeFolderName(folderName))));
+                                                    encodeString(encodeFolderName(folderName))));
                 } else {
                     connection.executeSimpleCommand(String.format("CREATE %s",
-                            encodeString(encodeFolderName(getPrefixedName()))));
+                                                    encodeString(encodeFolderName(getPrefixedName()))));
                 }
-                
+
                 return true;
             } catch (MessagingException me) {
                 return false;

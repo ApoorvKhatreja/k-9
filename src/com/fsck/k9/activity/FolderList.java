@@ -457,7 +457,7 @@ public class FolderList extends K9ListActivity {
         Accounts.listAccounts(this);
         finish();
     }
-    
+
     private void onCreateFolder(final Account acccout) {
         showDialog(DIALOG_CREATE_NEW_FOLDER);
         onRefresh(REFRESH_REMOTE);
@@ -541,9 +541,9 @@ public class FolderList extends K9ListActivity {
 
         case R.id.create_new_folder:
             onCreateFolder(mAccount);
-            
+
             return true;
-            
+
         case R.id.empty_trash:
             onEmptyTrash(mAccount);
 
@@ -677,7 +677,7 @@ public class FolderList extends K9ListActivity {
                     markAllAsRead();
                 }
             });
-            
+
         case DIALOG_CREATE_NEW_FOLDER:
             final View dialogView = mInflater.inflate(R.layout.text_input, null);
             return TextInputDialog.create(this, id, android.R.drawable.ic_menu_add, R.string.create_folder_title, getString(R.string.create_folder_instructions), R.string.okay_action, R.string.cancel_action, dialogView);
