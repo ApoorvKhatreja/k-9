@@ -40,6 +40,12 @@
         </menu>
     </item>
     <item
+    	android:id="@+id/create_new_folder"
+    	android:alphabeticShortcut="n"
+    	android:title="@string/create_folder_action"
+    	android:icon="@drawable/ic_menu_add"
+    />
+    <item
 		android:id="@+id/empty_trash"
         android:alphabeticShortcut="e"
 		android:title="@string/empty_trash_action"

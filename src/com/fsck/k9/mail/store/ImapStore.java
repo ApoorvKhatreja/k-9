@@ -773,6 +773,10 @@ public class ImapStore extends Store {
 
         @Override
         public boolean create(FolderType type) throws MessagingException {
+            return create(type, null);
+        }
+        
+        public boolean create(FolderType type, String folderName) throws MessagingException {
             /*
              * This method needs to operate in the unselected mode as well as the selected mode
              * so we must get the connection ourselves if it's not there. We are specifically
@@ -787,8 +791,14 @@ public class ImapStore extends Store {
                 }
             }
             try {
-                connection.executeSimpleCommand(String.format("CREATE %s",
-                                                encodeString(encodeFolderName(getPrefixedName()))));
+                if(folderName != null) {
+                    connection.executeSimpleCommand(String.format("CREATE %s",
+                            encodeString(encodeFolderName(folderName))));
+                } else {
+                    connection.executeSimpleCommand(String.format("CREATE %s",
+                            encodeString(encodeFolderName(getPrefixedName()))));
+                }
+                
                 return true;
             } catch (MessagingException me) {
                 return false;

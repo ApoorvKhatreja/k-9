@@ -116,6 +116,7 @@
     <string name="add_attachment_action_image">Add attachment (Image)</string>
     <string name="add_attachment_action_video">Add attachment (Video)</string>
     <string name="dump_settings_action">Dump settings</string>
+    <string name="create_folder_action">Create new folder</string>
     <string name="empty_trash_action">Empty Trash</string>
     <string name="expunge_action">Expunge</string>
     <string name="clear_local_folder_action">Clear local messages</string>
@@ -126,6 +127,9 @@
     <string name="prefs_title">Settings</string>
     <string name="accounts_context_menu_title">Account options</string>
     <string name="folder_context_menu_title">Folder options</string>
+    
+    <string name="create_folder_title">Create new folder</string>
+    <string name="create_folder_instructions">Enter the name for the new folder to be created</string>
 
     <string name="general_no_subject">(No subject)</string> <!-- Shown in place of the subject when a message has no subject. Showing this in parentheses is customary. -->
     <string name="general_no_date">No date</string>
