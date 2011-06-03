@@ -65,6 +65,8 @@ public class FolderList extends K9ListActivity {
 
     private LayoutInflater mInflater;
 
+    private View mDialogView;
+
     private Account mAccount;
 
     private FolderListHandler mHandler = new FolderListHandler();
@@ -458,9 +460,17 @@ public class FolderList extends K9ListActivity {
         finish();
     }
 
-    private void onCreateFolder(final Account acccout) {
-        showDialog(DIALOG_CREATE_NEW_FOLDER);
-        onRefresh(REFRESH_REMOTE);
+    private void onCreateFolder(final Account account) {
+        String folderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
+        Log.e(K9.LOG_TAG, "lol" + folderName);
+
+        try {
+            MessagingController.getInstance(getApplication()).createFolder(account, folderName, mAdapter.mListener);
+        } catch (MessagingException e) {
+
+        } finally {
+            onRefresh(REFRESH_REMOTE);
+        }
     }
 
     private void onEmptyTrash(final Account account) {
@@ -540,7 +550,7 @@ public class FolderList extends K9ListActivity {
             return true;
 
         case R.id.create_new_folder:
-            onCreateFolder(mAccount);
+            showDialog(DIALOG_CREATE_NEW_FOLDER);
 
             return true;
 
@@ -679,8 +689,21 @@ public class FolderList extends K9ListActivity {
             });
 
         case DIALOG_CREATE_NEW_FOLDER:
-            final View dialogView = mInflater.inflate(R.layout.text_input, null);
-            return TextInputDialog.create(this, id, android.R.drawable.ic_menu_add, R.string.create_folder_title, getString(R.string.create_folder_instructions), R.string.okay_action, R.string.cancel_action, dialogView);
+            mDialogView = mInflater.inflate(R.layout.text_input, null);
+            return TextInputDialog.create(this,
+                                          id,
+                                          android.R.drawable.ic_menu_add,
+                                          R.string.create_folder_title,
+                                          getString(R.string.create_folder_instructions),
+                                          R.string.okay_action,
+                                          R.string.cancel_action,
+                                          mDialogView,
+            new Runnable() {
+                @Override
+                public void run() {
+                    onCreateFolder(mAccount);
+                }
+            });
         }
 
         return super.onCreateDialog(id);

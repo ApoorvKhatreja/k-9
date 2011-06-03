@@ -61,6 +61,17 @@ public abstract class Folder {
     public abstract boolean create(FolderType type) throws MessagingException;
 
     /**
+     * Not abstract until somebody implements for other stores. Currently implemented in ImapStore.
+     * @param type
+     * @param folderName
+     * @return
+     * @throws MessagingException
+     */
+    public boolean create(FolderType type, String folderName) throws MessagingException {
+        return create(type);
+    }
+
+    /**
      * Create a new folder with a specified display limit.  Not abstract to allow
      * remote folders to not override or worry about this call if they don't care to.
      */
@@ -69,6 +80,10 @@ public abstract class Folder {
     }
 
     public abstract boolean exists() throws MessagingException;
+
+    public boolean exists(String folderName) throws MessagingException {
+        return false;
+    }
 
     /**
      * @return A count of the messages in the selected folder.

@@ -723,7 +723,7 @@ public class ImapStore extends Store {
          * @return
          *     {@code True}, if the folder exists. {@code False}, otherwise.
          */
-        private boolean exists(String folderName) throws MessagingException {
+        public boolean exists(String folderName) throws MessagingException {
             try {
                 // Since we don't care about RECENT, we'll use that for the check, because we're checking
                 // a folder other than ourself, and don't want any untagged responses to cause a change

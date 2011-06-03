@@ -11,7 +11,7 @@ public class TextInputDialog {
 
 
     public static Dialog create(final Activity activity, final int dialogId, final int icon, final int title,
-                                final String message, final int confirmButton, final int cancelButton, final View dialogView) {
+                                final String message, final int confirmButton, final int cancelButton, final View dialogView, final Runnable action) {
         final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setIcon(icon);
         builder.setTitle(title);
@@ -22,6 +22,7 @@ public class TextInputDialog {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 activity.dismissDialog(dialogId);
+                action.run();
             }
         });
         builder.setNegativeButton(cancelButton,
