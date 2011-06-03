@@ -717,7 +717,7 @@ public class ImapStore extends Store {
          * Check if a given folder exists on the server.
          *
          * @param folderName
-         *     The name of the folder encoded as quoted string.
+         *     The name of the folder in decoded form.
          *     See {@link ImapStore#encodeString}
          *
          * @return
@@ -728,7 +728,15 @@ public class ImapStore extends Store {
                 // Since we don't care about RECENT, we'll use that for the check, because we're checking
                 // a folder other than ourself, and don't want any untagged responses to cause a change
                 // in our own fields
-                mConnection.executeSimpleCommand(String.format("STATUS %s (RECENT)", folderName));
+                ImapConnection connection = null;
+                synchronized (this) {
+                    if (mConnection == null) {
+                        connection = getConnection();
+                    } else {
+                        connection = mConnection;
+                    }
+                }
+                connection.executeSimpleCommand(String.format("STATUS %s (RECENT)", encodeString(encodeFolderName(folderName))));
                 return true;
             } catch (IOException ioe) {
                 throw ioExceptionHandler(mConnection, ioe);
@@ -827,7 +835,7 @@ public class ImapStore extends Store {
                 uids[i] = messages[i].getUid();
             }
             try {
-                String remoteDestName = encodeString(encodeFolderName(iFolder.getPrefixedName()));
+                String remoteDestName = iFolder.getPrefixedName();
 
                 if (!exists(remoteDestName)) {
                     /*
@@ -869,7 +877,7 @@ public class ImapStore extends Store {
                 setFlags(messages, new Flag[] { Flag.DELETED }, true);
             } else {
                 ImapFolder remoteTrashFolder = (ImapFolder)getStore().getFolder(trashFolderName);
-                String remoteTrashName = encodeString(encodeFolderName(remoteTrashFolder.getPrefixedName()));
+                String remoteTrashName = remoteTrashFolder.getPrefixedName();
 
                 if (!exists(remoteTrashName)) {
                     /*

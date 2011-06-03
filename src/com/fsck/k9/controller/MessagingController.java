@@ -3,7 +3,18 @@ package com.fsck.k9.controller;
 
 import java.io.CharArrayWriter;
 import java.io.PrintWriter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -31,11 +42,11 @@ import android.util.Log;
 import com.fsck.k9.Account;
 import com.fsck.k9.AccountStats;
 import com.fsck.k9.K9;
+import com.fsck.k9.K9.Intents;
 import com.fsck.k9.NotificationSetting;
 import com.fsck.k9.Preferences;
 import com.fsck.k9.R;
 import com.fsck.k9.SearchSpecification;
-import com.fsck.k9.K9.Intents;
 import com.fsck.k9.activity.FolderList;
 import com.fsck.k9.activity.MessageList;
 import com.fsck.k9.helper.Utility;
@@ -47,8 +58,8 @@ import com.fsck.k9.mail.Flag;
 import com.fsck.k9.mail.Folder;
 import com.fsck.k9.mail.Folder.FolderType;
 import com.fsck.k9.mail.Folder.OpenMode;
-import com.fsck.k9.mail.Message.RecipientType;
 import com.fsck.k9.mail.Message;
+import com.fsck.k9.mail.Message.RecipientType;
 import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.Part;
 import com.fsck.k9.mail.PushReceiver;
@@ -58,12 +69,12 @@ import com.fsck.k9.mail.Transport;
 import com.fsck.k9.mail.internet.MimeMessage;
 import com.fsck.k9.mail.internet.MimeUtility;
 import com.fsck.k9.mail.internet.TextBody;
-import com.fsck.k9.mail.store.UnavailableAccountException;
 import com.fsck.k9.mail.store.LocalStore;
-import com.fsck.k9.mail.store.UnavailableStorageException;
 import com.fsck.k9.mail.store.LocalStore.LocalFolder;
 import com.fsck.k9.mail.store.LocalStore.LocalMessage;
 import com.fsck.k9.mail.store.LocalStore.PendingCommand;
+import com.fsck.k9.mail.store.UnavailableAccountException;
+import com.fsck.k9.mail.store.UnavailableStorageException;
 
 
 /**
@@ -1130,6 +1141,19 @@ public class MessagingController implements Runnable {
     }
 
     public void createFolder(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
+        threadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    createFolderSynchronous(account, folderName, listener);
+                } catch (MessagingException e) {
+
+                }
+            }
+        });
+    }
+
+    public void createFolderSynchronous(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
 
         Store remoteStore = account.getRemoteStore();
 

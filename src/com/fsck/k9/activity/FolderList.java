@@ -462,7 +462,6 @@ public class FolderList extends K9ListActivity {
 
     private void onCreateFolder(final Account account) {
         String folderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
-        Log.e(K9.LOG_TAG, "lol" + folderName);
 
         try {
             MessagingController.getInstance(getApplication()).createFolder(account, folderName, mAdapter.mListener);
