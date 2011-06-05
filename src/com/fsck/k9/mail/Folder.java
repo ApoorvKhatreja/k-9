@@ -231,4 +231,9 @@ public abstract class Folder {
     public Account getAccount() {
         return mAccount;
     }
+
+    public boolean rename(String oldFolderName, String newFolderName) throws MessagingException {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

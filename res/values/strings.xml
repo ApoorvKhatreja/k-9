@@ -71,6 +71,8 @@
     <string name="check_mail_action">Check mail</string>
     <string name="send_messages_action">Send messages</string>
     <string name="list_folders_action">Folder list</string>
+    <string name="rename_folder_action">Rename folder</string>
+    <string name="delete_folder_action">Delete folder</string>
     <string name="refresh_folders_action">Refresh folders</string>
     <string name="mark_all_as_read_action">Mark all messages as read</string>
     <string name="add_account_action">Add account</string>
@@ -129,7 +131,10 @@
     <string name="folder_context_menu_title">Folder options</string>
     
     <string name="create_folder_title">Create new folder</string>
-    <string name="create_folder_instructions">Enter the name for the new folder to be created</string>
+	<string name="create_folder_instructions">Enter the name for the new folder to be created</string>
+
+	<string name="rename_folder_title">Rename folder</string>
+    <string name="rename_folder_instructions">Enter the new name for the selected folder</string>
 
     <string name="general_no_subject">(No subject)</string> <!-- Shown in place of the subject when a message has no subject. Showing this in parentheses is customary. -->
     <string name="general_no_date">No date</string>

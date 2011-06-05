@@ -1172,6 +1172,39 @@ public class MessagingController implements Runnable {
         }
     }
 
+    public void renameFolder(final Account account, final String oldFolderName, final String newFolderName, final MessagingListener listener) throws MessagingException {
+        threadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    renameFolderSynchronous(account, oldFolderName, newFolderName, listener);
+                } catch (MessagingException e) {
+
+                }
+            }
+        });
+    }
+
+    public void renameFolderSynchronous(final Account account, final String oldFolderName, final String newFolderName, final MessagingListener listener) throws MessagingException {
+
+        Store remoteStore = account.getRemoteStore();
+
+        if (K9.DEBUG)
+            Log.v(K9.LOG_TAG, "SYNC: About to get remote folder " + oldFolderName);
+        Folder remoteFolder = remoteStore.getFolder(oldFolderName);
+
+        if (remoteFolder.exists(oldFolderName) && !(remoteFolder.exists(newFolderName))) {
+            if (!remoteFolder.rename(oldFolderName, newFolderName)) {
+                for (MessagingListener l : getListeners(listener)) {
+                    l.synchronizeMailboxFinished(account, newFolderName, 0, 0);
+                }
+                if (K9.DEBUG)
+                    Log.i(K9.LOG_TAG, "Done synchronizing folder " + remoteFolder.getName());
+            }
+        }
+    }
+
+
     private int setLocalUnreadCountToRemote(LocalFolder localFolder, Folder remoteFolder, int newMessageCount) throws MessagingException {
         int remoteUnreadMessageCount = remoteFolder.getUnreadMessageCount();
         if (remoteUnreadMessageCount != -1) {

@@ -50,6 +50,8 @@ public class FolderList extends K9ListActivity {
 
     private static final int DIALOG_MARK_ALL_AS_READ = 1;
     private static final int DIALOG_CREATE_NEW_FOLDER = 2;
+    private static final int DIALOG_RENAME_FOLDER = 3;
+//    private static final int DIALOG_DELETE_FOLDER = 4;
 
     private static final String EXTRA_ACCOUNT = "account";
 
@@ -472,6 +474,41 @@ public class FolderList extends K9ListActivity {
         }
     }
 
+    private void onRenameFolder(final Account account, final String folderName) {
+        mSelectedContextFolder = mAdapter.getFolder(folderName);
+
+        mDialogView = mInflater.inflate(R.layout.text_input, null);
+        EditText folderNameInput = (EditText) mDialogView.findViewById(R.id.text_input);
+
+        folderNameInput.setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
+
+        showDialog(DIALOG_RENAME_FOLDER);
+    }
+
+    private void afterRenameFolder(final Account account) {
+        String newFolderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
+
+        try {
+            MessagingController.getInstance(getApplication()).renameFolder(account, mSelectedContextFolder.name, newFolderName, mAdapter.mListener);
+        } catch (MessagingException e) {
+
+        } finally {
+            onRefresh(REFRESH_REMOTE);
+        }
+    }
+
+//    private void onDeleteFolder(final Account account) {
+//        String folderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
+//
+//        try {
+//            MessagingController.getInstance(getApplication()).createFolder(account, folderName, mAdapter.mListener);
+//        } catch (MessagingException e) {
+//
+//        } finally {
+//            onRefresh(REFRESH_REMOTE);
+//        }
+//    }
+
     private void onEmptyTrash(final Account account) {
         mHandler.dataChanged();
 
@@ -630,6 +667,16 @@ public class FolderList extends K9ListActivity {
 
             break;
 
+        case R.id.rename_folder:
+            onRenameFolder(mAccount, folder.name);
+
+            break;
+
+        case R.id.delete_folder:
+//            onDeleteFolder(mAccount, folder.name);
+
+            break;
+
         case R.id.empty_trash:
             onEmptyTrash(mAccount);
 
@@ -703,6 +750,22 @@ public class FolderList extends K9ListActivity {
                     onCreateFolder(mAccount);
                 }
             });
+
+        case DIALOG_RENAME_FOLDER:
+            return TextInputDialog.create(this,
+                                          id,
+                                          android.R.drawable.ic_input_get,
+                                          R.string.rename_folder_title,
+                                          getString(R.string.rename_folder_instructions),
+                                          R.string.okay_action,
+                                          R.string.cancel_action,
+                                          mDialogView,
+            new Runnable() {
+                @Override
+                public void run() {
+                    afterRenameFolder(mAccount);
+                }
+            });
         }
 
         return super.onCreateDialog(id);
@@ -730,6 +793,11 @@ public class FolderList extends K9ListActivity {
         FolderInfoHolder folder = (FolderInfoHolder) mAdapter.getItem(info.position);
 
         menu.setHeaderTitle(folder.displayName);
+
+        if (mAccount.isSpecialFolder(folder.name)) {
+            menu.findItem(R.id.rename_folder).setVisible(false);
+            menu.findItem(R.id.delete_folder).setVisible(false);
+        }
 
         if (!folder.name.equals(mAccount.getTrashFolderName()))
             menu.findItem(R.id.empty_trash).setVisible(false);

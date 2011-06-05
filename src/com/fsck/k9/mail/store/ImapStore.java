@@ -819,6 +819,32 @@ public class ImapStore extends Store {
             }
         }
 
+        public boolean rename(String oldFolderName, String newFolderName) throws MessagingException {
+            ImapConnection connection = null;
+            synchronized (this) {
+                if (mConnection == null) {
+                    connection = getConnection();
+                } else {
+                    connection = mConnection;
+                }
+            }
+            try {
+                if (newFolderName != null) {
+                    connection.executeSimpleCommand(String.format("RENAME %s %s",
+                                                    encodeString(encodeFolderName(oldFolderName)), encodeString(encodeFolderName(newFolderName))));
+                }
+                return true;
+            } catch (MessagingException me) {
+                return false;
+            } catch (IOException ioe) {
+                throw ioExceptionHandler(mConnection, ioe);
+            } finally {
+                if (mConnection == null) {
+                    releaseConnection(connection);
+                }
+            }
+        }
+
         @Override
         public void copyMessages(Message[] messages, Folder folder) throws MessagingException {
             if (!(folder instanceof ImapFolder)) {
