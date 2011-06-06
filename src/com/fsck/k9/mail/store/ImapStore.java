@@ -819,6 +819,7 @@ public class ImapStore extends Store {
             }
         }
 
+        @Override
         public boolean rename(String oldFolderName, String newFolderName) throws MessagingException {
             ImapConnection connection = null;
             synchronized (this) {
@@ -832,6 +833,33 @@ public class ImapStore extends Store {
                 if (newFolderName != null) {
                     connection.executeSimpleCommand(String.format("RENAME %s %s",
                                                     encodeString(encodeFolderName(oldFolderName)), encodeString(encodeFolderName(newFolderName))));
+                }
+                return true;
+            } catch (MessagingException me) {
+                return false;
+            } catch (IOException ioe) {
+                throw ioExceptionHandler(mConnection, ioe);
+            } finally {
+                if (mConnection == null) {
+                    releaseConnection(connection);
+                }
+            }
+        }
+
+        @Override
+        public boolean delete(String folderName) throws MessagingException {
+            ImapConnection connection = null;
+            synchronized (this) {
+                if (mConnection == null) {
+                    connection = getConnection();
+                } else {
+                    connection = mConnection;
+                }
+            }
+            try {
+                if (folderName != null) {
+                    connection.executeSimpleCommand(String.format("DELETE %s",
+                                                    encodeString(encodeFolderName(folderName))));
                 }
                 return true;
             } catch (MessagingException me) {

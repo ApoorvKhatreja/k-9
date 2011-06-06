@@ -1204,6 +1204,37 @@ public class MessagingController implements Runnable {
         }
     }
 
+    public void deleteFolder(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
+        threadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    deleteFolderSynchronous(account, folderName, listener);
+                } catch (MessagingException e) {
+
+                }
+            }
+        });
+    }
+
+    public void deleteFolderSynchronous(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
+
+        Store remoteStore = account.getRemoteStore();
+
+        if (K9.DEBUG)
+            Log.v(K9.LOG_TAG, "SYNC: About to get remote folder " + folderName);
+        Folder remoteFolder = remoteStore.getFolder(folderName);
+
+        if (remoteFolder.exists(folderName)) {
+            if (!remoteFolder.delete(folderName)) {
+                for (MessagingListener l : getListeners(listener)) {
+                    l.synchronizeMailboxFinished(account, folderName, 0, 0);
+                }
+                if (K9.DEBUG)
+                    Log.i(K9.LOG_TAG, "Done synchronizing folder " + remoteFolder.getName());
+            }
+        }
+    }
 
     private int setLocalUnreadCountToRemote(LocalFolder localFolder, Folder remoteFolder, int newMessageCount) throws MessagingException {
         int remoteUnreadMessageCount = remoteFolder.getUnreadMessageCount();

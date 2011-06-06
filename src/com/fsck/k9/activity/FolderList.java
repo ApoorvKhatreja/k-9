@@ -51,7 +51,7 @@ public class FolderList extends K9ListActivity {
     private static final int DIALOG_MARK_ALL_AS_READ = 1;
     private static final int DIALOG_CREATE_NEW_FOLDER = 2;
     private static final int DIALOG_RENAME_FOLDER = 3;
-//    private static final int DIALOG_DELETE_FOLDER = 4;
+    private static final int DIALOG_DELETE_FOLDER = 4;
 
     private static final String EXTRA_ACCOUNT = "account";
 
@@ -497,17 +497,23 @@ public class FolderList extends K9ListActivity {
         }
     }
 
-//    private void onDeleteFolder(final Account account) {
-//        String folderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
-//
-//        try {
-//            MessagingController.getInstance(getApplication()).createFolder(account, folderName, mAdapter.mListener);
-//        } catch (MessagingException e) {
-//
-//        } finally {
-//            onRefresh(REFRESH_REMOTE);
-//        }
-//    }
+    private void onDeleteFolder(final Account account, final String folderName) {
+        mSelectedContextFolder = mAdapter.getFolder(folderName);
+
+        showDialog(DIALOG_DELETE_FOLDER);
+    }
+
+    private void afterDeleteFolder(final Account account) {
+        String folderName = mSelectedContextFolder.name;
+
+        try {
+            MessagingController.getInstance(getApplication()).deleteFolder(account, folderName, mAdapter.mListener);
+        } catch (MessagingException e) {
+
+        } finally {
+            onRefresh(REFRESH_REMOTE);
+        }
+    }
 
     private void onEmptyTrash(final Account account) {
         mHandler.dataChanged();
@@ -673,7 +679,7 @@ public class FolderList extends K9ListActivity {
             break;
 
         case R.id.delete_folder:
-//            onDeleteFolder(mAccount, folder.name);
+            onDeleteFolder(mAccount, folder.name);
 
             break;
 
@@ -764,6 +770,21 @@ public class FolderList extends K9ListActivity {
                 @Override
                 public void run() {
                     afterRenameFolder(mAccount);
+                }
+            });
+
+        case DIALOG_DELETE_FOLDER:
+            return ConfirmationDialog.create(this,
+                                             id,
+                                             R.string.delete_folder_title,
+                                             getString(R.string.delete_folder_instructions,
+                                                     mSelectedContextFolder.displayName),
+                                             R.string.okay_action,
+                                             R.string.cancel_action,
+            new Runnable() {
+                @Override
+                public void run() {
+                    afterDeleteFolder(mAccount);
                 }
             });
         }

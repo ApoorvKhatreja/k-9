@@ -236,4 +236,9 @@ public abstract class Folder {
         // TODO Auto-generated method stub
         return false;
     }
+
+    public boolean delete(String folderName) throws MessagingException {
+        // TODO Auto-generated method stub
+        return false;
+    }
 }

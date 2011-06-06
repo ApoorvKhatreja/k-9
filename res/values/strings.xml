@@ -134,9 +134,13 @@
 	<string name="create_folder_instructions">Enter the name for the new folder to be created</string>
 
 	<string name="rename_folder_title">Rename folder</string>
-    <string name="rename_folder_instructions">Enter the new name for the selected folder</string>
+	<string name="rename_folder_instructions">Enter the new name for the selected folder</string>
 
-    <string name="general_no_subject">(No subject)</string> <!-- Shown in place of the subject when a message has no subject. Showing this in parentheses is customary. -->
+	<string name="delete_folder_title">Delete folder</string>
+    <string name="delete_folder_instructions">Are you sure you want to delete the folder \'<xliff:g id="folder">%s</xliff:g>\'?</string>
+
+
+	<string name="general_no_subject">(No subject)</string> <!-- Shown in place of the subject when a message has no subject. Showing this in parentheses is customary. -->
     <string name="general_no_date">No date</string>
     <string name="general_no_sender">No sender</string>
     <string name="status_loading">Polling</string>
