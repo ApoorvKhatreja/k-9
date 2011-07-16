@@ -1172,6 +1172,34 @@ public class MessagingController implements Runnable {
         }
     }
 
+    /**
+     * Rename a folder locally. This needs to be separate from the remote version so that the local rename of the folder appears to be instantaneous.
+     * @param account
+     * @param oldFolderName
+     * @param newFolderName
+     * @param listener
+     * @return
+     * @throws MessagingException
+     */
+    public boolean renameLocalFolder(final Account account, final String oldFolderName, final String newFolderName, final MessagingListener listener) throws MessagingException {
+        Store localStore = account.getLocalStore();
+        LocalFolder localFolder = (LocalFolder) localStore.getFolder(oldFolderName);
+
+        if (localFolder.exists() && localFolder != null) {
+            localFolder.setName(newFolderName);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Rename a folder remotely.
+     * @param account
+     * @param oldFolderName
+     * @param newFolderName
+     * @param listener
+     * @throws MessagingException
+     */
     public void renameFolder(final Account account, final String oldFolderName, final String newFolderName, final MessagingListener listener) throws MessagingException {
         threadPool.execute(new Runnable() {
             @Override

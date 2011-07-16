@@ -1294,6 +1294,20 @@ public class LocalStore extends Store implements Serializable {
             return mFlaggedMessageCount;
         }
 
+        /**
+         * Allows us to rename a folder.
+         * @param name
+         * @throws MessagingException
+         */
+        public void setName(final String name) throws MessagingException {
+            open(OpenMode.READ_WRITE);
+
+            if (name != null) {
+                updateFolderColumn("name", name);
+                mName = name;
+            }
+        }
+
         public void setUnreadMessageCount(final int unreadMessageCount) throws MessagingException {
             mUnreadMessageCount = Math.max(0, unreadMessageCount);
             updateFolderColumn("unread_count", mUnreadMessageCount);

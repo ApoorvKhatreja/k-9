@@ -60,6 +60,7 @@ public class FolderList extends K9ListActivity {
     private static final String EXTRA_FROM_SHORTCUT = "fromShortcut";
 
     private static final boolean REFRESH_REMOTE = true;
+    private static final boolean REFRESH_LOCAL = false;
 
     private ListView mListView;
 
@@ -352,7 +353,7 @@ public class FolderList extends K9ListActivity {
         //mAccount.refresh(Preferences.getPreferences(this));
         MessagingController.getInstance(getApplication()).getAccountStats(this, mAccount, mAdapter.mListener);
 
-        onRefresh(!REFRESH_REMOTE);
+        onRefresh(REFRESH_LOCAL);
 
         MessagingController.getInstance(getApplication()).notifyAccountCancel(this, mAccount);
     }
@@ -436,7 +437,7 @@ public class FolderList extends K9ListActivity {
         if (mAccount.getFolderPushMode() != FolderMode.NONE) {
             MailService.actionRestartPushers(this, null);
         }
-        onRefresh(false);
+        onRefresh(REFRESH_LOCAL);
     }
 
 
@@ -477,11 +478,6 @@ public class FolderList extends K9ListActivity {
     private void onRenameFolder(final Account account, final String folderName) {
         mSelectedContextFolder = mAdapter.getFolder(folderName);
 
-        mDialogView = mInflater.inflate(R.layout.text_input, null);
-        EditText folderNameInput = (EditText) mDialogView.findViewById(R.id.text_input);
-
-        folderNameInput.setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
-
         showDialog(DIALOG_RENAME_FOLDER);
     }
 
@@ -489,7 +485,10 @@ public class FolderList extends K9ListActivity {
         String newFolderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
 
         try {
-            MessagingController.getInstance(getApplication()).renameFolder(account, mSelectedContextFolder.name, newFolderName, mAdapter.mListener);
+            if (MessagingController.getInstance(getApplication()).renameLocalFolder(account, mSelectedContextFolder.name, newFolderName, mAdapter.mListener)) {
+                onRefresh(REFRESH_LOCAL);
+                MessagingController.getInstance(getApplication()).renameFolder(account, mSelectedContextFolder.name, newFolderName, mAdapter.mListener);
+            }
         } catch (MessagingException e) {
 
         } finally {
@@ -545,7 +544,7 @@ public class FolderList extends K9ListActivity {
             }
         }
 
-        onRefresh(!REFRESH_REMOTE);
+        onRefresh(REFRESH_LOCAL);
     }
 
 
@@ -799,6 +798,10 @@ public class FolderList extends K9ListActivity {
             ((AlertDialog)dialog).setMessage(getString(R.string.mark_all_as_read_dlg_instructions_fmt,
                                              mSelectedContextFolder.displayName));
 
+            break;
+
+        case DIALOG_RENAME_FOLDER:
+            ((EditText)(dialog.findViewById(R.id.text_input))).setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
             break;
 
         default:
