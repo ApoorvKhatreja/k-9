@@ -98,6 +98,11 @@ public class ActivityListener extends MessagingListener {
         informUserOfStatus();
     }
 
+    @Override
+    public void renameFolderFinished() {
+
+    }
+
 
     @Override
     public void synchronizeMailboxHeadersStarted(Account account, String folder) {

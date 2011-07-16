@@ -1228,6 +1228,10 @@ public class MessagingController implements Runnable {
                 }
                 if (K9.DEBUG)
                     Log.i(K9.LOG_TAG, "Done synchronizing folder " + remoteFolder.getName());
+            } else {
+                for (MessagingListener l : getListeners(listener)) {
+                    l.renameFolderFinished();
+                }
             }
         }
     }

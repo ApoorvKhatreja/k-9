@@ -477,7 +477,9 @@ public class FolderList extends K9ListActivity {
 
     private void onRenameFolder(final Account account, final String folderName) {
         mSelectedContextFolder = mAdapter.getFolder(folderName);
-
+        mDialogView = mInflater.inflate(R.layout.text_input, null);
+        EditText folderNameInput = (EditText) mDialogView.findViewById(R.id.text_input);
+        folderNameInput.setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
         showDialog(DIALOG_RENAME_FOLDER);
     }
 
@@ -491,8 +493,6 @@ public class FolderList extends K9ListActivity {
             }
         } catch (MessagingException e) {
 
-        } finally {
-            onRefresh(REFRESH_REMOTE);
         }
     }
 
@@ -1003,6 +1003,10 @@ public class FolderList extends K9ListActivity {
                     refreshFolder(account, folder);
                 }
 
+            }
+
+            public void renameFolderFinished() {
+                onRefresh(REFRESH_REMOTE);
             }
 
             private void refreshFolder(Account account, String folderName) {

@@ -194,4 +194,9 @@ public class MessagingListener {
     public void controllerCommandCompleted(boolean moreCommandsToRun) {
 
     }
+
+    public void renameFolderFinished() {
+        // TODO Auto-generated method stub
+
+    }
 }
