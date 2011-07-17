@@ -801,7 +801,18 @@ public class FolderList extends K9ListActivity {
             break;
 
         case DIALOG_RENAME_FOLDER:
-            ((EditText)(dialog.findViewById(R.id.text_input))).setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
+            final Dialog renameDialog = dialog;
+            EditText textInput = (EditText)(dialog.findViewById(R.id.text_input));
+            textInput.setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
+            textInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        renameDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    }
+                }
+            });
+
             break;
 
         default:

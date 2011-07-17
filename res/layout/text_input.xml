@@ -12,7 +12,7 @@
         android:autoText="false"
         android:capitalize="none"
         android:gravity="fill_horizontal"
-        android:inputType="textMultiLine"
+        android:singleLine="true"
         android:selectAllOnFocus="true"
         android:imeOptions="actionDone"/>
     
