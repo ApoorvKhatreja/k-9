@@ -467,11 +467,12 @@ public class FolderList extends K9ListActivity {
         String folderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
 
         try {
-            MessagingController.getInstance(getApplication()).createFolder(account, folderName, mAdapter.mListener);
+            if (MessagingController.getInstance(getApplication()).createLocalFolder(account, folderName)) {
+                onRefresh(REFRESH_LOCAL);
+                MessagingController.getInstance(getApplication()).createFolder(account, folderName, mAdapter.mListener);
+            }
         } catch (MessagingException e) {
 
-        } finally {
-            onRefresh(REFRESH_REMOTE);
         }
     }
 
@@ -487,7 +488,7 @@ public class FolderList extends K9ListActivity {
         String newFolderName = ((EditText) mDialogView.findViewById(R.id.text_input)).getText().toString();
 
         try {
-            if (MessagingController.getInstance(getApplication()).renameLocalFolder(account, mSelectedContextFolder.name, newFolderName, mAdapter.mListener)) {
+            if (MessagingController.getInstance(getApplication()).renameLocalFolder(account, mSelectedContextFolder.name, newFolderName)) {
                 onRefresh(REFRESH_LOCAL);
                 MessagingController.getInstance(getApplication()).renameFolder(account, mSelectedContextFolder.name, newFolderName, mAdapter.mListener);
             }
@@ -506,11 +507,16 @@ public class FolderList extends K9ListActivity {
         String folderName = mSelectedContextFolder.name;
 
         try {
-            MessagingController.getInstance(getApplication()).deleteFolder(account, folderName, mAdapter.mListener);
+            /*
+             * Delete the folder locally first, then refresh the UI.
+             * TODO: The folder should be hidden first, and the folder and contained messages should be removed from LocalStore, to make the deletion appear instantaneous.
+             */
+            if (MessagingController.getInstance(getApplication()).deleteLocalFolder(account, folderName)) {
+                onRefresh(REFRESH_LOCAL);
+                MessagingController.getInstance(getApplication()).deleteFolder(account, folderName, mAdapter.mListener);
+            }
         } catch (MessagingException e) {
 
-        } finally {
-            onRefresh(REFRESH_REMOTE);
         }
     }
 
@@ -800,11 +806,26 @@ public class FolderList extends K9ListActivity {
 
             break;
 
+        case DIALOG_CREATE_NEW_FOLDER:
+            final Dialog createDialog = dialog;
+            EditText createTextInput = (EditText)(dialog.findViewById(R.id.text_input));
+            createTextInput.setText("", TextView.BufferType.EDITABLE);
+            createTextInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View v, boolean hasFocus) {
+                    if (hasFocus) {
+                        createDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                    }
+                }
+            });
+
+            break;
+
         case DIALOG_RENAME_FOLDER:
             final Dialog renameDialog = dialog;
-            EditText textInput = (EditText)(dialog.findViewById(R.id.text_input));
-            textInput.setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
-            textInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            EditText renameTextInput = (EditText)(dialog.findViewById(R.id.text_input));
+            renameTextInput.setText(mSelectedContextFolder.name, TextView.BufferType.EDITABLE);
+            renameTextInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
                     if (hasFocus) {
@@ -813,6 +834,11 @@ public class FolderList extends K9ListActivity {
                 }
             });
 
+            break;
+
+        case DIALOG_DELETE_FOLDER:
+            ((AlertDialog)dialog).setMessage(getString(R.string.delete_folder_instructions,
+                                             mSelectedContextFolder.displayName));
             break;
 
         default:
@@ -1016,7 +1042,21 @@ public class FolderList extends K9ListActivity {
 
             }
 
+            /*
+             * These three methods ensure that if for some reason the remote create/rename/delete command fails, the changes made to the LocalStore
+             * are rolled back. This is not the right way, but probably the least 'bad' way to do it until we have an error reporting/handling framework
+             * in place.
+             */
+
+            public void createFolderFinished() {
+                onRefresh(REFRESH_REMOTE);
+            }
+
             public void renameFolderFinished() {
+                onRefresh(REFRESH_REMOTE);
+            }
+
+            public void deleteFolderFinished() {
                 onRefresh(REFRESH_REMOTE);
             }
 

@@ -99,7 +99,17 @@ public class ActivityListener extends MessagingListener {
     }
 
     @Override
+    public void createFolderFinished() {
+
+    }
+
+    @Override
     public void renameFolderFinished() {
+
+    }
+
+    @Override
+    public void deleteFolderFinished() {
 
     }
 

@@ -195,8 +195,15 @@ public class MessagingListener {
 
     }
 
+    public void createFolderFinished() {
+
+    }
+
     public void renameFolderFinished() {
-        // TODO Auto-generated method stub
+
+    }
+
+    public void deleteFolderFinished() {
 
     }
 }

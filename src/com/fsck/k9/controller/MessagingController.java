@@ -1140,6 +1140,34 @@ public class MessagingController implements Runnable {
         return true;
     }
 
+    /**
+     * Creates a folder with name folderName in the LocalStore.
+     *
+     * @param account
+     * @param folderName
+     * @return
+     * @throws MessagingException
+     */
+    public boolean createLocalFolder(final Account account, final String folderName) throws MessagingException {
+        Store localStore = account.getLocalStore();
+        Folder localFolder = localStore.getFolder(folderName);
+        try {
+            localFolder.open(OpenMode.READ_ONLY);
+            return true;
+        } catch (MessagingException e) {
+            if (K9.DEBUG)
+                Log.i(K9.LOG_TAG, "Unable to create folder with name " + folderName);
+            return false;
+        }
+    }
+
+    /**
+     * Creates a folder with name folderName on the remote server.
+     * @param account
+     * @param folderName
+     * @param listener
+     * @throws MessagingException
+     */
     public void createFolder(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
         threadPool.execute(new Runnable() {
             @Override
@@ -1153,6 +1181,13 @@ public class MessagingController implements Runnable {
         });
     }
 
+    /**
+     * Creates a folder with name folderName on the remote server.
+     * @param account
+     * @param folderName
+     * @param listener
+     * @throws MessagingException
+     */
     public void createFolderSynchronous(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
 
         Store remoteStore = account.getRemoteStore();
@@ -1168,20 +1203,27 @@ public class MessagingController implements Runnable {
                 }
                 if (K9.DEBUG)
                     Log.i(K9.LOG_TAG, "Done synchronizing folder " + remoteFolder.getName());
+            } else {
+                for (MessagingListener l : getListeners(listener)) {
+                    l.createFolderFinished();
+                }
             }
+        } else {
+            if (K9.DEBUG)
+                Log.i(K9.LOG_TAG, "Cannot create remote folder with name '" + folderName + "' because it already exists.");
         }
     }
 
     /**
-     * Rename a folder locally. This needs to be separate from the remote version so that the local rename of the folder appears to be instantaneous.
+     * Rename a folder with name oldFolderName to newFolderName in the LocalStore.
+     * This needs to be separate from the remote version so that the local rename of the folder appears to be instantaneous.
      * @param account
      * @param oldFolderName
      * @param newFolderName
-     * @param listener
      * @return
      * @throws MessagingException
      */
-    public boolean renameLocalFolder(final Account account, final String oldFolderName, final String newFolderName, final MessagingListener listener) throws MessagingException {
+    public boolean renameLocalFolder(final Account account, final String oldFolderName, final String newFolderName) throws MessagingException {
         Store localStore = account.getLocalStore();
         LocalFolder localFolder = (LocalFolder) localStore.getFolder(oldFolderName);
 
@@ -1193,7 +1235,7 @@ public class MessagingController implements Runnable {
     }
 
     /**
-     * Rename a folder remotely.
+     * Rename a folder with name oldFolderName to newFolderName on the remote server.
      * @param account
      * @param oldFolderName
      * @param newFolderName
@@ -1213,6 +1255,14 @@ public class MessagingController implements Runnable {
         });
     }
 
+    /**
+     * Rename a folder with name oldFolderName to newFolderName on the remote server.
+     * @param account
+     * @param oldFolderName
+     * @param newFolderName
+     * @param listener
+     * @throws MessagingException
+     */
     public void renameFolderSynchronous(final Account account, final String oldFolderName, final String newFolderName, final MessagingListener listener) throws MessagingException {
 
         Store remoteStore = account.getRemoteStore();
@@ -1233,9 +1283,40 @@ public class MessagingController implements Runnable {
                     l.renameFolderFinished();
                 }
             }
+        } else {
+            if (K9.DEBUG)
+                Log.i(K9.LOG_TAG, "Cannot rename remote folder with name '" + oldFolderName + "' because it does not exist or a folder with name '" + newFolderName + "' already exists.");
         }
     }
 
+    /**
+     * Delete folder with name folderName from LocalStore.
+     * @param account
+     * @param folderName
+     * @return
+     * @throws MessagingException
+     */
+    public boolean deleteLocalFolder(final Account account, final String folderName) throws MessagingException {
+        Store localStore = account.getLocalStore();
+        Folder localFolder = localStore.getFolder(folderName);
+
+        if (localFolder.exists()) {
+            localFolder.delete(false);
+            return true;
+        } else {
+            if (K9.DEBUG)
+                Log.v(K9.LOG_TAG, "Folder with name '" + folderName + "' does not exist in LocalStore");
+            return false;
+        }
+    }
+
+    /**
+     * Delete folder with name folderName from the remote server.
+     * @param account
+     * @param folderName
+     * @param listener
+     * @throws MessagingException
+     */
     public void deleteFolder(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
         threadPool.execute(new Runnable() {
             @Override
@@ -1249,6 +1330,13 @@ public class MessagingController implements Runnable {
         });
     }
 
+    /**
+     * Delete folder with name folderName from the remote server.
+     * @param account
+     * @param folderName
+     * @param listener
+     * @throws MessagingException
+     */
     public void deleteFolderSynchronous(final Account account, final String folderName, final MessagingListener listener) throws MessagingException {
 
         Store remoteStore = account.getRemoteStore();
@@ -1264,7 +1352,14 @@ public class MessagingController implements Runnable {
                 }
                 if (K9.DEBUG)
                     Log.i(K9.LOG_TAG, "Done synchronizing folder " + remoteFolder.getName());
+            } else {
+                for (MessagingListener l : getListeners(listener)) {
+                    l.deleteFolderFinished();
+                }
             }
+        } else {
+            if (K9.DEBUG)
+                Log.i(K9.LOG_TAG, "Cannot delete remote folder with name '" + folderName + "' because it does not exist.");
         }
     }
 
