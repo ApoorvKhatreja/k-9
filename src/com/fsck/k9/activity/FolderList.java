@@ -456,9 +456,9 @@ public class FolderList extends K9ListActivity {
         Accounts.listAccounts(this);
         finish();
     }
-    
+
     private void onEditSubscriptions() {
-        
+
     }
 
     private void onEmptyTrash(final Account account) {
@@ -526,10 +526,10 @@ public class FolderList extends K9ListActivity {
             onRefresh(REFRESH_REMOTE);
 
             return true;
-            
+
         case R.id.edit_subscriptions:
             onEditSubscriptions();
-            
+
             return true;
 
         case R.id.account_settings:
