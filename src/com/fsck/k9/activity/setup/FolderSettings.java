@@ -15,6 +15,7 @@ import com.fsck.k9.mail.Folder.FolderClass;
 import com.fsck.k9.mail.Folder.OpenMode;
 import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.Store;
+import com.fsck.k9.mail.store.ImapStore;
 import com.fsck.k9.mail.store.LocalStore;
 import com.fsck.k9.mail.store.LocalStore.LocalFolder;
 import com.fsck.k9.service.MailService;
@@ -30,11 +31,13 @@ public class FolderSettings extends K9PreferenceActivity {
     private static final String PREFERENCE_PUSH_CLASS = "folder_settings_folder_push_mode";
     private static final String PREFERENCE_IN_TOP_GROUP = "folder_settings_in_top_group";
     private static final String PREFERENCE_INTEGRATE = "folder_settings_include_in_integrated_inbox";
+    private static final String PREFERENCE_SUBSCRIBE = "folder_settings_add_to_subscriptions";
 
     private LocalFolder mFolder;
 
     private CheckBoxPreference mInTopGroup;
     private CheckBoxPreference mIntegrate;
+    private CheckBoxPreference mSubscribe;
     private ListPreference mDisplayClass;
     private ListPreference mSyncClass;
     private ListPreference mPushClass;
@@ -50,9 +53,9 @@ public class FolderSettings extends K9PreferenceActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String folderName = (String)getIntent().getSerializableExtra(EXTRA_FOLDER_NAME);
+        final String folderName = (String)getIntent().getSerializableExtra(EXTRA_FOLDER_NAME);
         String accountUuid = getIntent().getStringExtra(EXTRA_ACCOUNT);
-        Account mAccount = Preferences.getPreferences(this).getAccount(accountUuid);
+        final Account mAccount = Preferences.getPreferences(this).getAccount(accountUuid);
 
         try {
             LocalStore localStore = mAccount.getLocalStore();
@@ -82,6 +85,33 @@ public class FolderSettings extends K9PreferenceActivity {
         mInTopGroup.setChecked(mFolder.isInTopGroup());
         mIntegrate = (CheckBoxPreference)findPreference(PREFERENCE_INTEGRATE);
         mIntegrate.setChecked(mFolder.isIntegrate());
+        mSubscribe = (CheckBoxPreference)findPreference(PREFERENCE_SUBSCRIBE);
+        mSubscribe.setChecked(mFolder.isSubscribed());
+
+        mSubscribe.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+
+            public boolean onPreferenceClick(Preference preference) {
+                try {
+                    Store store = mAccount.getRemoteStore();
+                    if (store instanceof ImapStore && preference instanceof CheckBoxPreference) {
+                        ImapStore imapStore = (ImapStore) store;
+                        if (((CheckBoxPreference) preference).isChecked()) {
+                            if (imapStore.subscribe(folderName)) {
+                                return true;
+                            }
+                        } else {
+                            if (imapStore.unsubscribe(folderName)) {
+                                return true;
+                            }
+                        }
+                    }
+                    return false;
+
+                } catch (MessagingException e) {
+                    return false;
+                }
+            }
+        });
 
         mDisplayClass = (ListPreference) findPreference(PREFERENCE_DISPLAY_CLASS);
         mDisplayClass.setValue(mFolder.getDisplayClass().name());

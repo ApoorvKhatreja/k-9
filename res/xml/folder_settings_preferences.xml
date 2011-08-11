@@ -54,6 +54,13 @@
             android:entries="@array/folder_settings_folder_push_mode_entries"
             android:entryValues="@array/folder_settings_folder_push_mode_values"
             android:dialogTitle="@string/folder_settings_folder_push_mode_label" />
+            
+        <CheckBoxPreference
+            android:persistent="false"
+            android:key="folder_settings_add_to_subscriptions"
+            android:title="@string/folder_settings_add_to_subscriptions_label"
+            android:summaryOff="@string/folder_settings_add_to_subscriptions_summary_off"
+            android:summaryOn="@string/folder_settings_add_to_subscriptions_summary_on" />
 
         <CheckBoxPreference
             android:persistent="false"

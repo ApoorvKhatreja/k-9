@@ -530,6 +530,42 @@ public class ImapStore extends Store {
         }
     }
 
+    public boolean subscribe(String folderName) throws MessagingException {
+        ImapConnection connection = null;
+        synchronized (this) {
+            connection = getConnection();
+        }
+        try {
+            connection.executeSimpleCommand(String.format("SUBSCRIBE %s",
+                                            encodeString(encodeFolderName(folderName))));
+            return true;
+        } catch (MessagingException me) {
+            return false;
+        } catch (IOException ioe) {
+            return false;
+        } finally {
+            releaseConnection(connection);
+        }
+    }
+
+    public boolean unsubscribe(String folderName) throws MessagingException {
+        ImapConnection connection = null;
+        synchronized (this) {
+            connection = getConnection();
+        }
+        try {
+            connection.executeSimpleCommand(String.format("UNSUBSCRIBE %s",
+                                            encodeString(encodeFolderName(folderName))));
+            return true;
+        } catch (MessagingException me) {
+            return false;
+        } catch (IOException ioe) {
+            return false;
+        } finally {
+            releaseConnection(connection);
+        }
+    }
+
     @Override
     public boolean isMoveCapable() {
         return true;

@@ -1054,4 +1054,7 @@ Welcome to K-9 Mail setup.  K-9 is an open source mail client for Android origin
     <string name="attachment_save_title">Save attachment</string>
     <string name="attachment_save_desc">No file browser found. Where would you like to save this attachment?</string>
 
+<string name="folder_settings_add_to_subscriptions_label">Subscribe to this folder</string>
+<string name="folder_settings_add_to_subscriptions_summary_off">Add to list of subscribed folders</string>
+<string name="folder_settings_add_to_subscriptions_summary_on">Remove from list of subscribed folders</string>
 </resources>
