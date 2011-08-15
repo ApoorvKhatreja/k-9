@@ -1446,13 +1446,18 @@ public class LocalStore extends Store implements Serializable {
             return mIntegrate;
         }
 
+        public void setIntegrate(boolean integrate) throws MessagingException {
+            mIntegrate = integrate;
+            updateFolderColumn("integrate", mIntegrate ? 1 : 0);
+        }
+
         public boolean isSubscribed() {
             return mSubscribe;
         }
 
-        public void setIntegrate(boolean integrate) throws MessagingException {
-            mIntegrate = integrate;
-            updateFolderColumn("integrate", mIntegrate ? 1 : 0);
+        public void setSubscribed(boolean isSubscribed) throws MessagingException {
+            mSubscribe = isSubscribed;
+            updateFolderColumn("subscribe", mSubscribe ? 1 : 0);
         }
 
         private String getPrefId(String name) {

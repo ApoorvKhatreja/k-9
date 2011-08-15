@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import com.fsck.k9.*;
 import com.fsck.k9.activity.K9PreferenceActivity;
+import com.fsck.k9.controller.MessagingController;
 import com.fsck.k9.mail.Folder.FolderClass;
 import com.fsck.k9.mail.Folder.OpenMode;
 import com.fsck.k9.mail.MessagingException;
@@ -91,25 +92,14 @@ public class FolderSettings extends K9PreferenceActivity {
         mSubscribe.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
             public boolean onPreferenceClick(Preference preference) {
-                try {
-                    Store store = mAccount.getRemoteStore();
-                    if (store instanceof ImapStore && preference instanceof CheckBoxPreference) {
-                        ImapStore imapStore = (ImapStore) store;
-                        if (((CheckBoxPreference) preference).isChecked()) {
-                            if (imapStore.subscribe(folderName)) {
-                                return true;
-                            }
-                        } else {
-                            if (imapStore.unsubscribe(folderName)) {
-                                return true;
-                            }
-                        }
+                if (preference instanceof CheckBoxPreference) {
+                    if (((CheckBoxPreference) preference).isChecked()) {
+                        MessagingController.getInstance(getApplication()).subscribe(mAccount, null, folderName, true);
+                    } else {
+                        MessagingController.getInstance(getApplication()).subscribe(mAccount, null, folderName, false);
                     }
-                    return false;
-
-                } catch (MessagingException e) {
-                    return false;
                 }
+                return true;
             }
         });
 

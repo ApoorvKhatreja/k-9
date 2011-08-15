@@ -530,7 +530,7 @@ public class ImapStore extends Store {
         }
     }
 
-    public boolean subscribe(String folderName) throws MessagingException {
+    public void subscribe(String folderName) throws MessagingException {
         ImapConnection connection = null;
         synchronized (this) {
             connection = getConnection();
@@ -538,17 +538,17 @@ public class ImapStore extends Store {
         try {
             connection.executeSimpleCommand(String.format("SUBSCRIBE %s",
                                             encodeString(encodeFolderName(folderName))));
-            return true;
-        } catch (MessagingException me) {
-            return false;
-        } catch (IOException ioe) {
-            return false;
+
+        } catch (Exception e) {
+            if (K9.DEBUG) {
+                Log.w(K9.LOG_TAG, "Unable to subscribe to folder with folder name: " + folderName);
+            }
         } finally {
             releaseConnection(connection);
         }
     }
 
-    public boolean unsubscribe(String folderName) throws MessagingException {
+    public void unsubscribe(String folderName) throws MessagingException {
         ImapConnection connection = null;
         synchronized (this) {
             connection = getConnection();
@@ -556,11 +556,10 @@ public class ImapStore extends Store {
         try {
             connection.executeSimpleCommand(String.format("UNSUBSCRIBE %s",
                                             encodeString(encodeFolderName(folderName))));
-            return true;
-        } catch (MessagingException me) {
-            return false;
-        } catch (IOException ioe) {
-            return false;
+        } catch (Exception e) {
+            if (K9.DEBUG) {
+                Log.w(K9.LOG_TAG, "Unable to unsubscribe to folder with folder name: " + folderName);
+            }
         } finally {
             releaseConnection(connection);
         }

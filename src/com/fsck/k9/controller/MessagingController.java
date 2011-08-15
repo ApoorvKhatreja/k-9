@@ -58,6 +58,7 @@ import com.fsck.k9.mail.Transport;
 import com.fsck.k9.mail.internet.MimeMessage;
 import com.fsck.k9.mail.internet.MimeUtility;
 import com.fsck.k9.mail.internet.TextBody;
+import com.fsck.k9.mail.store.ImapStore;
 import com.fsck.k9.mail.store.UnavailableAccountException;
 import com.fsck.k9.mail.store.LocalStore;
 import com.fsck.k9.mail.store.UnavailableStorageException;
@@ -122,6 +123,7 @@ public class MessagingController implements Runnable {
     private static final String PENDING_COMMAND_APPEND = "com.fsck.k9.MessagingController.append";
     private static final String PENDING_COMMAND_MARK_ALL_AS_READ = "com.fsck.k9.MessagingController.markAllAsRead";
     private static final String PENDING_COMMAND_EXPUNGE = "com.fsck.k9.MessagingController.expunge";
+    private static final String PENDING_COMMAND_SUBSCRIBE = "com.fsck.k9.MessagingController.subscribe";
 
     /**
      * Maximum number of unsynced messages to store at once
@@ -1909,6 +1911,8 @@ public class MessagingController implements Runnable {
                         processPendingEmptyTrash(command, account);
                     } else if (PENDING_COMMAND_EXPUNGE.equals(command.command)) {
                         processPendingExpunge(command, account);
+                    } else if (PENDING_COMMAND_SUBSCRIBE.equals(command.command)) {
+                        processPendingSubscribe(command, account);
                     }
                     localStore.removePendingCommand(command);
                     if (K9.DEBUG)
@@ -3506,6 +3510,66 @@ public class MessagingController implements Runnable {
                     throw new UnavailableAccountException(e);
                 } catch (Exception e) {
                     Log.e(K9.LOG_TAG, "emptyTrash failed", e);
+
+                    addErrorMessage(account, null, e);
+                } finally {
+                    closeFolder(localFolder);
+                }
+            }
+        });
+    }
+
+    private void processPendingSubscribe(PendingCommand command, Account account) throws MessagingException {
+        Store remoteStore = account.getRemoteStore();
+        String folderName = command.arguments[0];
+        boolean isSubscribe = Boolean.parseBoolean(command.arguments[1]);
+
+        if (remoteStore instanceof ImapStore) {
+            ImapStore imapStore = (ImapStore) remoteStore;
+            try {
+                if (isSubscribe) {
+                    imapStore.subscribe(folderName);
+                } else {
+                    imapStore.unsubscribe(folderName);
+                }
+            } catch (MessagingException e) {
+                e.setPermanentFailure(true);
+            }
+        } else {
+            if (K9.DEBUG) {
+                Log.w(K9.LOG_TAG, "Attempt to subscribe to a non-IMAP folder");
+            }
+        }
+    }
+
+    public void subscribe(final Account account, MessagingListener listener, final String folderName, final boolean isSubscribe) {
+        putBackground("subscribe", listener, new Runnable() {
+            @Override
+            public void run() {
+                LocalFolder localFolder = null;
+                try {
+                    Store localStore = account.getLocalStore();
+                    localFolder = (LocalFolder) localStore.getFolder(folderName);
+                    localFolder.open(OpenMode.READ_WRITE);
+                    if (isSubscribe) {
+                        localFolder.setSubscribed(true);
+                    } else {
+                        localFolder.setSubscribed(false);
+                    }
+
+                    PendingCommand command = new PendingCommand();
+                    command.command = PENDING_COMMAND_SUBSCRIBE;
+                    command.arguments = new String[2];
+                    command.arguments[0] = folderName;
+                    command.arguments[1] = Boolean.toString(isSubscribe);
+
+                    queuePendingCommand(account, command);
+                    processPendingCommands(account);
+                } catch (UnavailableStorageException e) {
+                    Log.i(K9.LOG_TAG, "Failed to subscribe because storage is not available - trying again later.");
+                    throw new UnavailableAccountException(e);
+                } catch (Exception e) {
+                    Log.e(K9.LOG_TAG, "subscribe failed", e);
 
                     addErrorMessage(account, null, e);
                 } finally {
