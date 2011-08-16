@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.util.Log;
 import android.view.KeyEvent;
 import com.fsck.k9.*;
@@ -78,7 +79,7 @@ public class FolderSettings extends K9PreferenceActivity {
 
         addPreferencesFromResource(R.xml.folder_settings_preferences);
 
-        Preference category = findPreference(PREFERENCE_TOP_CATERGORY);
+        PreferenceCategory category = (PreferenceCategory) findPreference(PREFERENCE_TOP_CATERGORY);
         category.setTitle(folderName);
 
 
@@ -88,6 +89,12 @@ public class FolderSettings extends K9PreferenceActivity {
         mIntegrate.setChecked(mFolder.isIntegrate());
         mSubscribe = (CheckBoxPreference)findPreference(PREFERENCE_SUBSCRIBE);
         mSubscribe.setChecked(mFolder.isSubscribed());
+
+        String uri = mAccount.getStoreUri();
+
+        if (!uri.startsWith("imap")) {
+            category.removePreference(mSubscribe);
+        }
 
         mSubscribe.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
 
