@@ -457,10 +457,6 @@ public class FolderList extends K9ListActivity {
         finish();
     }
 
-    private void onEditSubscriptions() {
-
-    }
-
     private void onEmptyTrash(final Account account) {
         mHandler.dataChanged();
 
@@ -524,11 +520,6 @@ public class FolderList extends K9ListActivity {
 
         case R.id.list_folders:
             onRefresh(REFRESH_REMOTE);
-
-            return true;
-
-        case R.id.edit_subscriptions:
-            onEditSubscriptions();
 
             return true;
 
