@@ -27,7 +27,7 @@ public class FolderSettings extends K9PreferenceActivity {
     private static final String EXTRA_FOLDER_NAME = "com.fsck.k9.folderName";
     private static final String EXTRA_ACCOUNT = "com.fsck.k9.account";
 
-    private static final String PREFERENCE_TOP_CATERGORY = "folder_settings";
+    private static final String PREFERENCE_TOP_CATEGORY = "folder_settings";
     private static final String PREFERENCE_DISPLAY_CLASS = "folder_settings_folder_display_mode";
     private static final String PREFERENCE_SYNC_CLASS = "folder_settings_folder_sync_mode";
     private static final String PREFERENCE_PUSH_CLASS = "folder_settings_folder_push_mode";
@@ -79,7 +79,7 @@ public class FolderSettings extends K9PreferenceActivity {
 
         addPreferencesFromResource(R.xml.folder_settings_preferences);
 
-        PreferenceCategory category = (PreferenceCategory) findPreference(PREFERENCE_TOP_CATERGORY);
+        PreferenceCategory category = (PreferenceCategory) findPreference(PREFERENCE_TOP_CATEGORY);
         category.setTitle(folderName);
 
 
